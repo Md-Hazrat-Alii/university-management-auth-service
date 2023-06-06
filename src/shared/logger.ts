@@ -1,6 +1,9 @@
-import { createLogger, format, transports } from 'winston'
 import path from 'path'
-const { combine, timestamp, label, printf, prettyPrint } = format
+import { createLogger, format, transports } from 'winston'
+
+const { combine, timestamp, label, printf } = format
+
+import DailyRotateFile from 'winston-daily-rotate-file'
 
 //Custom log Formate
 const myFormat = printf(({ level, message, label, timestamp }) => {
@@ -12,35 +15,45 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 })
 const logger = createLogger({
   level: 'info',
-  format: combine(
-    label({ label: 'right meow!' }),
-    timestamp(),
-    myFormat,
-    prettyPrint()
-  ),
+  format: combine(label({ label: 'PH' }), timestamp(), myFormat),
   defaultMeta: { service: 'user-service' },
   transports: [
     new transports.Console(),
-    new transports.File({
-      filename: path.join(process.cwd(), 'logs', 'winston', 'success.log'),
-      level: 'info',
+    new DailyRotateFile({
+      filename: path.join(
+        process.cwd(),
+        'logs',
+        'winston',
+        'successes',
+        'phu-%DATE%-success.log'
+      ),
+      datePattern: 'YYYY-DD-MM-HH',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
     }),
   ],
 })
 
 const errorlogger = createLogger({
   level: 'error',
-  format: combine(label({ label: 'right meow!' }), timestamp(), myFormat),
+  format: combine(label({ label: 'PH' }), timestamp(), myFormat),
   defaultMeta: { service: 'user-service' },
   transports: [
     new transports.Console(),
-    new transports.File({
-      filename: path.join(process.cwd(), 'logs', 'winston', 'error.log'),
-      level: 'error',
+    new DailyRotateFile({
+      filename: path.join(
+        process.cwd(),
+        'logs',
+        'winston',
+        'successes',
+        'phu-%DATE%-error.log'
+      ),
+      datePattern: 'YYYY-DD-MM-HH',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
     }),
   ],
 })
 export { logger, errorlogger }
-// logs/winston/
-// success.log
-// error.log
